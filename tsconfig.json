@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "lib": [
+      "ES2023"
+    ],
+    "module": "nodenext",
+    "target": "ES2023",
+    "outDir": "./build",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": "./",
+    "rootDir": "./",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+  ],
+  "exclude": [
+    "node_modules",
+    "build",
+    "dist",
+    "coverage",
+    "test",
+    "tests",
+    "**/*.spec.ts"
+  ]
+}
