@@ -29,6 +29,5 @@
     "coverage",
     "test",
     "tests",
-    "**/*.spec.ts"
   ]
 }

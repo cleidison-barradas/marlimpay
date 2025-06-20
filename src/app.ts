@@ -1,7 +1,8 @@
 import Fastify, { FastifyInstance } from "fastify";
 import { MongoConnection } from "./application/infra/database/mongo/mongo-connection";
-import { MongoConfig } from "./application/config/mongo-config";
-import { HttpConfig, logger } from "./application";
+import { HttpConfig, logger, MongoConfig } from "./application";
+import { CommonHandleError } from "./application/errors";
+import { routes } from "./application/routes";
 
 export class App {
   private port: number;
@@ -10,7 +11,10 @@ export class App {
   private mongoConnection!: MongoConnection;
 
   constructor({ host = "0.0.0.0", port = 8000 }: HttpConfig) {
-    this.server = Fastify({ loggerInstance: logger });
+    this.server = Fastify({
+      loggerInstance: logger,
+      disableRequestLogging: true,
+    });
     this.port = port;
     this.host = host;
 
@@ -18,11 +22,26 @@ export class App {
   }
 
   private init() {
+    this.initMiddlewares();
     this.initDatabase();
+    this.initRoutes();
+  }
+
+  private initRoutes() {
+    this.server.register(routes, { prefix: "/api" });
   }
 
   private initDatabase() {
     this.mongoConnection = new MongoConnection(MongoConfig);
+  }
+
+  private initMiddlewares() {
+    this.server.setErrorHandler(function (error, _, reply) {
+      logger.error(error);
+      reply
+        .status(error?.statusCode || 500)
+        .send(CommonHandleError.handle(error));
+    });
   }
 
   private gracefulShutdown(signal: NodeJS.Signals) {

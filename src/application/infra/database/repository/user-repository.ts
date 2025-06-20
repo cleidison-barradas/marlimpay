@@ -1,13 +1,13 @@
 import { TResult } from "@/application/helpers";
 import { IUser } from "../../interfaces/user-interface";
 
-type CreateUser = {
+export type CreateUser = {
   name: string;
   email: string;
   balance: number;
 };
 
-type UpdateUser = {
+export type UpdateUser = {
   name: string;
   email: string;
 };
@@ -15,5 +15,9 @@ type UpdateUser = {
 export interface IUserRepository {
   createOne(data: CreateUser): Promise<TResult<IUser>>;
   findById(id: string): Promise<TResult<IUser | null>>;
+  findByEmail(
+    email: string,
+    excludeOwnerUserId?: string,
+  ): Promise<TResult<IUser | null>>;
   updateOne(id: string, data: UpdateUser): Promise<TResult<IUser>>;
 }

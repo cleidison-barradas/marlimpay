@@ -1,3 +1,5 @@
+import { TResult } from "../helpers";
+import { ensureError } from "./ensureError";
 import { HTTP_STATUS_CODE } from "./types";
 
 export abstract class AppError extends Error {
@@ -47,5 +49,25 @@ export class TooManyRequestError extends AppError {
 export class IdempotencyError extends AppError {
   constructor(message: string) {
     super(message, HTTP_STATUS_CODE.STATUS_CONFLICT);
+  }
+}
+
+export class CommonHandleError {
+  static handle<T>(error: unknown): TResult<T> {
+    const err = ensureError(error);
+
+    const statusCode =
+      err instanceof AppError
+        ? err.statusCode
+        : HTTP_STATUS_CODE.STATUS_INTERNAL_SERVER_ERROR;
+
+    return {
+      success: false,
+      error: {
+        name: err.name,
+        message: err.message,
+        statusCode: statusCode,
+      },
+    };
   }
 }
