@@ -7,7 +7,7 @@ const stream = pino.transport({
       target: "pino-pretty",
       options: {
         colorize: true,
-        translateTime: "SYS:standard",
+        translateTime: "dd-mm-yy HH:MM:ss Z",
         ignore: "pid,hostname",
       },
     },
