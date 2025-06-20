@@ -37,10 +37,8 @@ describe("FindUserByIdUseCase Test", () => {
   });
 
   it("Shold not be able to find a user by id", async () => {
-    const result = await usecase.execute(faker.database.mongodbObjectId());
-
-    const user = result.success ? result.result : null;
-
-    expect(user).toBeNull;
+    expect(usecase.execute(faker.database.mongodbObjectId())).rejects.toThrow(
+      "User not found",
+    );
   });
 });
