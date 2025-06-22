@@ -1,6 +1,6 @@
 import Mongoose from "mongoose";
-import { ITransaction } from "@/application/infra/interfaces/transaction-interface";
 import { BaseModel } from "./internals/base-model";
+import { ITransaction } from "@/application/infra/interfaces";
 
 export class TransactionModel extends BaseModel<ITransaction> {
   constructor() {
@@ -11,10 +11,16 @@ export class TransactionModel extends BaseModel<ITransaction> {
         type: Number,
         required: true,
       },
-      type: {
+      direction: {
         type: String,
         required: true,
+        default: "sent",
         enum: ["sent", "received"],
+      },
+      security_hash: {
+        type: String,
+        required: true,
+        select: false,
       },
       status: {
         type: String,

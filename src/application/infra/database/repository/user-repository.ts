@@ -20,4 +20,5 @@ export interface IUserRepository {
     excludeOwnerUserId?: string,
   ): Promise<TResult<IUser | null>>;
   updateOne(id: string, data: UpdateUser): Promise<TResult<IUser>>;
+  updateBalance(id: string, balance: number): Promise<void>;
 }

@@ -94,4 +94,15 @@ export class MongoUserRepository implements IUserRepository {
       );
     }
   }
+
+  async updateBalance(id: string, balance: number): Promise<void> {
+    try {
+      await model.findByIdAndUpdate(id, { balance });
+    } catch (error) {
+      logger.error(error);
+      throw new InternalServerError(
+        "Oops, something went wrong on update user balance on database",
+      );
+    }
+  }
 }

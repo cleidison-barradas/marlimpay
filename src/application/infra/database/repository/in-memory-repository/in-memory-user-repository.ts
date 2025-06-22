@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { IUser } from "@/application/infra/interfaces/user-interface";
 import { BadRequestError } from "@/application/errors";
 import { TResult } from "@/application/helpers";
@@ -11,6 +12,7 @@ export class InMemoryUserRepository implements IUserRepository {
     try {
       return new Promise((resolve) => {
         this.users.push({
+          _id: randomUUID(),
           ...data,
         } as any);
 
@@ -83,6 +85,25 @@ export class InMemoryUserRepository implements IUserRepository {
     } catch (error) {
       throw new BadRequestError(
         "Oops, something went wrong on update user on database",
+      );
+    }
+  }
+
+  async updateBalance(id: string, balance: number): Promise<void> {
+    try {
+      return new Promise(() => {
+        const index = this.users.findIndex(
+          (user) => (user._id as string) === id,
+        );
+
+        this.users[index] = {
+          ...this.users[index],
+          balance,
+        } as IUser;
+      });
+    } catch (error) {
+      throw new BadRequestError(
+        "Oops, something went wrong on update user balance on database",
       );
     }
   }

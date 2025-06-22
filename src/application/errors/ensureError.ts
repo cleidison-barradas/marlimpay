@@ -1,3 +1,5 @@
+import { logger } from "../lib";
+
 export function ensureError(error: unknown): Error {
   let stringError = "[Unexpected error]";
 
@@ -6,7 +8,7 @@ export function ensureError(error: unknown): Error {
   try {
     stringError = JSON.stringify(error);
   } catch (e) {
-    console.error(error);
+    logger.error(e);
   }
 
   return new Error(String(`this is not an error: ${stringError}`));

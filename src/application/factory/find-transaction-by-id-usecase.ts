@@ -7,7 +7,9 @@ export class FindTransactionByIdUseCase {
   async execute(transaction_id: string) {
     let response = await this.repository.getTransactionById(transaction_id);
 
-    if (response.success && !response.result) {
+    const transaction = response.success ? response.result : null;
+
+    if (!transaction) {
       throw new NotFoundError("Transaction not found");
     }
 

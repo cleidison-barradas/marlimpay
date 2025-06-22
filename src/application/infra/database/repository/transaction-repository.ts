@@ -5,6 +5,7 @@ export type CreateTransaction = {
   amount: number;
   payer_id: string;
   receiver_id: string;
+  security_hash: string;
 };
 
 export interface ITransactionRepository {

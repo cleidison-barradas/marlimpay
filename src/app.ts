@@ -1,4 +1,5 @@
 import Fastify, { FastifyInstance } from "fastify";
+import transactionSecurityDecorator from "./application/infra/decorators/transaction-security-decorator";
 import { MongoConnection } from "./application/infra/database/mongo/mongo-connection";
 import { HttpConfig, logger, MongoConfig } from "./application";
 import { CommonHandleError } from "./application/errors";
@@ -24,7 +25,12 @@ export class App {
   private init() {
     this.initMiddlewares();
     this.initDatabase();
+    this.initDecorators();
     this.initRoutes();
+  }
+
+  private initDecorators() {
+    this.server.decorate("transactionSecurity", transactionSecurityDecorator);
   }
 
   private initRoutes() {

@@ -1,11 +1,14 @@
 import Mongoose from "mongoose";
 
-type TransactionType = "sent" | "received";
+type DirectionType = "sent" | "received";
+
 type TransactionStatus = "pending" | "approved" | "failed";
 
-export interface ITransaction extends Mongoose.Document {
+export interface ITransaction {
+  _id?: string;
   amount: number;
-  type: TransactionType;
+  security_hash: string;
+  direction: DirectionType;
   status?: TransactionStatus;
   payer_id: Mongoose.Schema.Types.ObjectId;
   receiver_id: Mongoose.Schema.Types.ObjectId;

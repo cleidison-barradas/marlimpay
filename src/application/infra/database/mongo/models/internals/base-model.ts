@@ -1,9 +1,8 @@
 import Mongoose from "mongoose";
-import MongoosePaginate from "mongoose-paginate-v2";
 
-export abstract class BaseModel<T extends Mongoose.Document> {
+export abstract class BaseModel<T> {
   private schemaName: string;
-  private model!: Mongoose.PaginateModel<T>;
+  private model!: Mongoose.Model<T>;
 
   constructor(schemaName: string) {
     this.schemaName = schemaName;
@@ -13,20 +12,14 @@ export abstract class BaseModel<T extends Mongoose.Document> {
     return this.model;
   }
 
-  public configureSchema(schemaDefinition: Mongoose.SchemaDefinition<T>) {
-    const schema = new Mongoose.Schema<T>(schemaDefinition);
-
-    schema.plugin(MongoosePaginate);
+  public configureSchema(schemaDefinition: Mongoose.SchemaDefinition) {
+    const schema = new Mongoose.Schema(schemaDefinition);
 
     schema.set("timestamps", true);
     schema.set("versionKey", false);
 
     if (!Mongoose.models[this.schemaName]) {
-      this.model = Mongoose.model<T, Mongoose.PaginateModel<T>>(
-        this.schemaName,
-        schema,
-        this.schemaName,
-      );
+      this.model = Mongoose.model<T>(this.schemaName, schema);
     }
   }
 }

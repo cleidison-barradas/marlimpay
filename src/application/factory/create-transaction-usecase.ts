@@ -1,39 +1,60 @@
+import {
+  IUserRepository,
+  ITransactionRepository,
+  ITransactionSecurityRepository,
+} from "../infra";
 import { CreateTransactionDTO } from "../dtos";
-import { IdempotencyError, TooManyRequestError } from "../errors";
-import { ICacheService, ITransactionRepository } from "../infra";
-
-const MAX_TRANSACTIONS_USER_REQUESTS_PER_MINUTE = 5;
+import { BadRequestError, NotFoundError } from "../errors";
 
 export class CreateTransactionUsecase {
   constructor(
-    private readonly repository: ITransactionRepository,
-    private readonly cacheService: ICacheService,
+    private readonly transactionRepository: ITransactionRepository,
+    private readonly userRepository: IUserRepository,
+    private readonly transactionSecurityRepository: ITransactionSecurityRepository,
   ) {}
 
-  async execute(data: CreateTransactionDTO) {
-    const requests = await this.cacheService.getRateLimit(data.payer_id);
+  async execute({
+    payer_id,
+    receiver_id,
+    amount,
+    security_hash,
+  }: CreateTransactionDTO) {
+    const [payerResponse, receiverResponse] = await Promise.all([
+      this.userRepository.findById(payer_id),
+      this.userRepository.findById(receiver_id),
+    ]);
 
-    if (requests > MAX_TRANSACTIONS_USER_REQUESTS_PER_MINUTE) {
-      throw new TooManyRequestError(
-        "Too many requests, please try again later",
+    const payer = payerResponse.success ? payerResponse.result : null;
+    const receiver = receiverResponse.success ? receiverResponse.result : null;
+
+    if (!payer || !receiver) {
+      throw new NotFoundError("Payer or receiver not found.");
+    }
+
+    if (payer.balance < amount) {
+      throw new BadRequestError(
+        "Payer does not have enough balance to complete the transaction.",
       );
     }
 
-    const isDuplicatedOperation = await this.cacheService.getHashData(data);
+    const transaction = await this.transactionRepository.createOne({
+      amount,
+      payer_id,
+      receiver_id,
+      security_hash,
+    });
 
-    if (isDuplicatedOperation) {
-      throw new IdempotencyError("Transaction already processed");
+    if (transaction.success) {
+      const new_balance = Number(payer.balance) - Number(amount);
+
+      await this.userRepository.updateBalance(payer_id, new_balance);
+
+      await this.transactionSecurityRepository.updateTransactionSecurityStatus(
+        security_hash,
+        "completed",
+      );
     }
 
-    const response = await this.repository.createOne(data);
-
-    if (response.success) {
-      await Promise.all([
-        this.cacheService.setRateLimit(data.payer_id),
-        this.cacheService.setHashData(data),
-      ]);
-    }
-
-    return response;
+    return transaction;
   }
 }
