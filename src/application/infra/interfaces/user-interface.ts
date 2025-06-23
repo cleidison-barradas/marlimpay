@@ -3,4 +3,5 @@ export interface IUser {
   name: string;
   email: string;
   balance: number;
+  access_token?: string;
 }

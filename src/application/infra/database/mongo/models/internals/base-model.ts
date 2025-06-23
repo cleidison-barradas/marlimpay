@@ -8,18 +8,26 @@ export abstract class BaseModel<T> {
     this.schemaName = schemaName;
   }
 
-  public getModel() {
-    return this.model;
+  public getModel(): Mongoose.Model<T> {
+    const model = Mongoose.models[this.schemaName];
+
+    if (!model) {
+      throw new Error(`Model ${this.schemaName} not found`);
+    }
+
+    return model;
   }
 
-  public configureSchema(schemaDefinition: Mongoose.SchemaDefinition) {
+  public configureSchema(schemaDefinition: Mongoose.SchemaDefinition<T>) {
     const schema = new Mongoose.Schema(schemaDefinition);
 
     schema.set("timestamps", true);
     schema.set("versionKey", false);
 
-    if (!Mongoose.models[this.schemaName]) {
-      this.model = Mongoose.model<T>(this.schemaName, schema);
-    }
+    const model = Mongoose.model<T>(this.schemaName, schema);
+
+    model.syncIndexes().then(() => {
+      this.model = model;
+    });
   }
 }

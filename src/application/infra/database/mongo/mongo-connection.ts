@@ -1,6 +1,11 @@
 import Mongoose from "mongoose";
-import { MongoConfig } from "@/application/config/mongo-config";
+import {
+  DefaultUserConfig,
+  MongoConfig,
+} from "@/application/config/mongo-config";
 import { logger } from "@/application/lib";
+import { UserModel } from "./models/user-model";
+import { signJwt } from "@/application/lib/jwt";
 
 export class MongoConnection {
   constructor(private readonly mongoConfig: MongoConfig) {}
@@ -28,5 +33,35 @@ export class MongoConnection {
 
   public async closeConnection() {
     await Mongoose.connection.close();
+  }
+
+  public async createDefaultRecords() {
+    const model = Mongoose.models["users"];
+
+    const count = await model.countDocuments();
+
+    if (
+      count === 0 &&
+      process.env.NODE_ENV === "development" &&
+      DefaultUserConfig.name &&
+      DefaultUserConfig.email
+    ) {
+      const doc = await model.create({
+        name: DefaultUserConfig.name,
+        email: DefaultUserConfig.email,
+        balance: 1000,
+      });
+
+      const access_token = await signJwt({
+        user_id: doc._id,
+        email: doc.email,
+      });
+
+      await doc.updateOne({ access_token });
+
+      logger.info(
+        `Created default user: ${DefaultUserConfig.name}, email: ${DefaultUserConfig.email}`,
+      );
+    }
   }
 }

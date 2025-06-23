@@ -1,10 +1,14 @@
 import Fastify, { FastifyInstance } from "fastify";
 import fastifyRateLimit from "@fastify/rate-limit";
-import transactionSecurityDecorator from "./application/infra/decorators/transaction-security-decorator";
+
 import { MongoConnection } from "./application/infra/database/mongo/mongo-connection";
 import { HttpConfig, logger, MongoConfig } from "./application";
 import { CommonHandleError } from "./application/errors";
 import { routes } from "./application/routes";
+import {
+  authDecorator,
+  transactionSecurityDecorator,
+} from "./application/infra";
 
 export class App {
   private port: number;
@@ -24,9 +28,9 @@ export class App {
   }
 
   private init() {
+    this.initDatabase();
     this.initPlugins();
     this.initMiddlewares();
-    this.initDatabase();
     this.initDecorators();
     this.initRoutes();
   }
@@ -39,6 +43,7 @@ export class App {
 
   private initDecorators() {
     this.server.decorate("transactionSecurity", transactionSecurityDecorator);
+    this.server.decorate("authenticate", authDecorator);
   }
 
   private initRoutes() {
@@ -73,6 +78,8 @@ export class App {
       await this.server.listen({ host: this.host, port: this.port });
 
       await this.mongoConnection.connect();
+
+      await this.mongoConnection.createDefaultRecords();
 
       process.on("SIGINT", this.gracefulShutdown.bind(this));
       process.on("SIGTERM", this.gracefulShutdown.bind(this));

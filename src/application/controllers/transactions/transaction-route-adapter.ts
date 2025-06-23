@@ -11,21 +11,23 @@ export class TransactionRouteAdapter extends RouteAdapter {
     instance.route({
       url: this.path,
       method: "POST",
-      preHandler: [instance.transactionSecurity],
-      config: { rateLimit: { max: 5, timeWindow: "1 minute" } },
       handler: this.controller.create,
+      config: { rateLimit: { max: 5, timeWindow: "1 minute" } },
+      preHandler: [instance.authenticate, instance.transactionSecurity],
     });
 
     instance.route({
       url: `${this.path}/:id`,
       method: "GET",
       handler: this.controller.getTransactionById,
+      preHandler: [instance.authenticate],
     });
 
     instance.route({
       url: `/users/:user_id/transactions`,
       method: "GET",
       handler: this.controller.listTransactionsByUserId,
+      preHandler: [instance.authenticate],
     });
   }
 }

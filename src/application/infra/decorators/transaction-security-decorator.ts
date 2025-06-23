@@ -5,13 +5,16 @@ import {
   IdempotencyError,
   UnauthorizedError,
 } from "@/application/errors";
-import { CreateTransactionDTO } from "@/application/dtos";
-import { hashTransaction } from "@/application/helpers";
+import {
+  CreateTransactionDTO,
+  createTransactionSchema,
+} from "@/application/dtos";
+import { hashTransaction, yupValidator } from "@/application/helpers";
 
-export default async (
+export async function transactionSecurityDecorator(
   request: FastifyRequest<{ Body: CreateTransactionDTO }>,
   _: FastifyReply,
-) => {
+) {
   const transaction_security_hash = request.headers["idempotency-key"] as
     | string
     | null;
@@ -22,13 +25,9 @@ export default async (
     );
   }
 
-  const { payer_id, receiver_id, amount } = request.body;
+  await yupValidator(createTransactionSchema, request.body);
 
-  if (!payer_id || !receiver_id || !amount) {
-    throw new BadRequestError(
-      "Payer ID, receiver ID, and amount are required to process the transaction.",
-    );
-  }
+  const { amount, payer_id, receiver_id } = request.body;
 
   const current_transaction_hash = hashTransaction({
     amount,
@@ -62,4 +61,4 @@ export default async (
   }
 
   request.transaction_security_hash = security_hash;
-};
+}

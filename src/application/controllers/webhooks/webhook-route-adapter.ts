@@ -11,6 +11,7 @@ export class WebhookRouteAdapter extends RouteAdapter {
       url: `${this.path}/payment-gateway`,
       method: "POST",
       handler: this.controller.handleWebhook,
+      preHandler: [instance.authenticate],
     });
   }
 }

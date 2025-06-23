@@ -19,6 +19,10 @@ export class UserModel extends BaseModel<IUser> {
         type: Number,
         required: true,
       },
+      access_token: {
+        type: String,
+        select: false,
+      },
     });
   }
 }

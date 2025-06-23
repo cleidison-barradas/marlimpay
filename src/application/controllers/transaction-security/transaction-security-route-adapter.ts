@@ -11,6 +11,7 @@ export class transactionSecurityRouteAdapter extends RouteAdapter {
       url: this.path,
       method: "POST",
       handler: this.controller.create,
+      preHandler: [instance.authenticate],
     });
   }
 }
