@@ -3,8 +3,9 @@ import {
   ITransactionRepository,
   ITransactionSecurityRepository,
 } from "../infra";
-import { CreateTransactionDTO } from "../dtos";
+import { CreateTransactionDTO, createTransactionSchema } from "../dtos";
 import { BadRequestError, NotFoundError } from "../errors";
+import { yupValidator } from "../helpers";
 
 export class CreateTransactionUsecase {
   constructor(
@@ -19,6 +20,13 @@ export class CreateTransactionUsecase {
     amount,
     security_hash,
   }: CreateTransactionDTO) {
+    await yupValidator(createTransactionSchema, {
+      amount,
+      payer_id,
+      receiver_id,
+      security_hash,
+    });
+
     const [payerResponse, receiverResponse] = await Promise.all([
       this.userRepository.findById(payer_id),
       this.userRepository.findById(receiver_id),

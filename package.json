@@ -41,6 +41,7 @@
     "fastify": "^5.4.0",
     "js-sha1": "^0.7.0",
     "mongoose": "^8.16.0",
-    "mongoose-paginate-v2": "^1.9.1"
+    "mongoose-paginate-v2": "^1.9.1",
+    "yup": "^1.6.1"
   }
 }

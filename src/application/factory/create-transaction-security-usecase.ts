@@ -1,7 +1,7 @@
 import { ITransactionSecurityRepository } from "../infra";
-import { CreateTransactionSecurityDTO } from "../dtos";
+import { createTransactionSchema, CreateTransactionSecurityDTO } from "../dtos";
+import { hashTransaction, yupValidator } from "../helpers";
 import { IdempotencyError } from "../errors";
-import { hashTransaction } from "../helpers";
 
 export class CreateTransactionSecurityUseCase {
   constructor(
@@ -13,6 +13,12 @@ export class CreateTransactionSecurityUseCase {
     payer_id,
     receiver_id,
   }: CreateTransactionSecurityDTO) {
+    await yupValidator(createTransactionSchema, {
+      amount,
+      payer_id,
+      receiver_id,
+    });
+
     const security_hash = hashTransaction({
       amount,
       payer_id,

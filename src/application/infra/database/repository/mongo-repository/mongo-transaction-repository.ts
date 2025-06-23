@@ -10,6 +10,7 @@ import {
 import { BadRequestError } from "@/application/errors";
 import { TransactionModel } from "../../mongo/models/transaction-model";
 import { logger } from "@/application/lib";
+import { tr } from "@faker-js/faker";
 
 const model = new TransactionModel().getModel();
 
@@ -36,8 +37,18 @@ export class MongoTransactionRepository implements ITransactionRepository {
     userId: string,
   ): Promise<TResult<ITransaction[]>> {
     try {
-      const result = await model.find({
-        $or: [{ receiver_id: userId }, { payer_id: userId }],
+      const docs = await model.find(
+        {
+          $or: [{ receiver_id: userId }, { payer_id: userId }],
+        },
+        { status: 1, direction: 1, amount: 1, payer_id: 1, receiver_id: 1 },
+      );
+
+      const result = docs.map((item) => {
+        item.direction =
+          item.payer_id.toString() === userId ? "sent" : "received";
+
+        return item;
       });
 
       return {

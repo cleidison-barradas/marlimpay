@@ -1,11 +1,15 @@
-import { UpdateUserDTO } from "../dtos";
+import { UpdateUserDTO, updateUserSchema } from "../dtos";
 import { BadRequestError, NotFoundError } from "../errors";
+import { yupValidator } from "../helpers";
+
 import { IUserRepository } from "../infra";
 
 export class UpdateUserUseCase {
   constructor(private readonly repository: IUserRepository) {}
 
   async execute(id: string, data: UpdateUserDTO) {
+    await yupValidator(updateUserSchema, data);
+
     const response = await this.repository.findById(id);
 
     const user = response.success ? response.result : null;

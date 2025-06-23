@@ -1,6 +1,10 @@
 import { ITransactionRepository, IUserRepository } from "../infra";
 import { BadRequestError, NotFoundError } from "../errors";
-import { UpdateTransactionStatusDTO } from "../dtos";
+import {
+  UpdateTransactionStatusDTO,
+  updateTransactionStatusSchema,
+} from "../dtos";
+import { yupValidator } from "../helpers";
 
 export class UpdateTransactionStatusUseCase {
   constructor(
@@ -9,6 +13,11 @@ export class UpdateTransactionStatusUseCase {
   ) {}
 
   async execute({ transaction_id, status }: UpdateTransactionStatusDTO) {
+    await yupValidator(updateTransactionStatusSchema, {
+      transaction_id,
+      status,
+    });
+
     const response =
       await this.transactionRepository.getTransactionById(transaction_id);
 
