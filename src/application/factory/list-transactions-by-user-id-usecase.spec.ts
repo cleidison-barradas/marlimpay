@@ -14,6 +14,7 @@ describe("ListTransactionsByUserIdUseCase Test", () => {
       status: "pending",
       receiver_id: faker.database.mongodbObjectId(),
       payer_id: faker.database.mongodbObjectId(),
+      security_hash: faker.string.uuid(),
     };
   }
 

@@ -41,6 +41,10 @@ export class App {
     });
   }
 
+  public getServer() {
+    return this.server;
+  }
+
   private initDecorators() {
     this.server.decorate("transactionSecurity", transactionSecurityDecorator);
     this.server.decorate("authenticate", authDecorator);

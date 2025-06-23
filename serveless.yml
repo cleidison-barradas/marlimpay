@@ -1,0 +1,33 @@
+service: marlimpay
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  stage: dev
+  region: us-east-1
+
+functions:
+  marlimpay:
+    handler: build/src/lambda.handler
+    events:
+      - http:
+          path: /
+          method: ANY
+          cors: true
+
+      - http:
+          path: /{proxy+}
+          method: ANY
+          cors: true
+
+packages:
+  patterns:
+    - "!node_modules/**"
+    - "build/**"
+
+plugins:
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    httpPort: 3000
