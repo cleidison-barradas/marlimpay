@@ -1,6 +1,10 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { MongoTransactionSecurityRepository } from "../database/repository/mongo-repository/mongo-transaction-security-repository";
-import { BadRequestError, UnauthorizedError } from "@/application/errors";
+import {
+  BadRequestError,
+  IdempotencyError,
+  UnauthorizedError,
+} from "@/application/errors";
 import { CreateTransactionDTO } from "@/application/dtos";
 import { hashTransaction } from "@/application/helpers";
 
@@ -52,7 +56,7 @@ export default async (
   const { status, security_hash } = transaction_security;
 
   if (status === "completed") {
-    throw new BadRequestError(
+    throw new IdempotencyError(
       "This transaction has already been completed and cannot be processed again.",
     );
   }

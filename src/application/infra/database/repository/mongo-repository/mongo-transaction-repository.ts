@@ -1,5 +1,8 @@
 import { TResult } from "@/application/helpers";
-import { ITransaction } from "@/application/infra/interfaces/transaction-interface";
+import {
+  ITransaction,
+  TransactionStatus,
+} from "@/application/infra/interfaces/transaction-interface";
 import {
   CreateTransaction,
   ITransactionRepository,
@@ -61,6 +64,20 @@ export class MongoTransactionRepository implements ITransactionRepository {
       logger.error(error);
       throw new BadRequestError(
         "Ooops, something went wrong on create transaction on database",
+      );
+    }
+  }
+
+  async updateTransactionStatus(
+    transaction_id: string,
+    status: TransactionStatus,
+  ): Promise<void> {
+    try {
+      await model.findByIdAndUpdate(transaction_id, { status });
+    } catch (error) {
+      logger.error(error);
+      throw new BadRequestError(
+        "Ooops, something went wrong on update transaction status on database",
       );
     }
   }

@@ -1,8 +1,8 @@
 import Mongoose from "mongoose";
 
-type DirectionType = "sent" | "received";
+export type DirectionType = "sent" | "received";
 
-type TransactionStatus = "pending" | "approved" | "failed";
+export type TransactionStatus = "pending" | "approved" | "failed";
 
 export interface ITransaction {
   _id?: string;

@@ -1,5 +1,8 @@
 import { TResult } from "@/application/helpers";
-import { ITransaction } from "../../interfaces/transaction-interface";
+import {
+  ITransaction,
+  TransactionStatus,
+} from "../../interfaces/transaction-interface";
 
 export type CreateTransaction = {
   amount: number;
@@ -14,4 +17,8 @@ export interface ITransactionRepository {
     transaction_id: string,
   ): Promise<TResult<ITransaction | null>>;
   listTransactionsByUserId(userId: string): Promise<TResult<ITransaction[]>>;
+  updateTransactionStatus(
+    transaction_id: string,
+    status: TransactionStatus,
+  ): Promise<void>;
 }
