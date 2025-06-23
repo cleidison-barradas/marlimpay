@@ -12,6 +12,7 @@ export class TransactionRouteAdapter extends RouteAdapter {
       url: this.path,
       method: "POST",
       preHandler: [instance.transactionSecurity],
+      config: { rateLimit: { max: 5, timeWindow: "1 minute" } },
       handler: this.controller.create,
     });
 

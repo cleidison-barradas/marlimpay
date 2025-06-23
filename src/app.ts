@@ -1,4 +1,5 @@
 import Fastify, { FastifyInstance } from "fastify";
+import fastifyRateLimit from "@fastify/rate-limit";
 import transactionSecurityDecorator from "./application/infra/decorators/transaction-security-decorator";
 import { MongoConnection } from "./application/infra/database/mongo/mongo-connection";
 import { HttpConfig, logger, MongoConfig } from "./application";
@@ -23,10 +24,17 @@ export class App {
   }
 
   private init() {
+    this.initPlugins();
     this.initMiddlewares();
     this.initDatabase();
     this.initDecorators();
     this.initRoutes();
+  }
+
+  private initPlugins() {
+    this.server.register(fastifyRateLimit, {
+      global: false,
+    });
   }
 
   private initDecorators() {
